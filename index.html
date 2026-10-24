@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#155eef">
+<title>My AI Study</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;font-family:Arial,sans-serif;background:#f3f6ff;color:#182230}
+header{background:#155eef;color:white;padding:22px 18px;border-radius:0 0 22px 22px}
+header h1{margin:0 0 8px}
+main{max-width:650px;margin:auto;padding:16px}
+.card{background:white;padding:18px;border-radius:16px;margin:14px 0;box-shadow:0 3px 14px #18223012}
+label{display:block;font-weight:bold;margin:12px 0 6px}
+select,input,textarea,button{width:100%;padding:12px;border:1px solid #cbd5e1;border-radius:10px;font-size:16px}
+button{background:#155eef;color:white;border:0;font-weight:bold;margin-top:10px}
+button.secondary{background:#e8efff;color:#155eef}
+#answer{white-space:pre-wrap;line-height:1.6}
+img{max-width:100%;margin-top:10px;border-radius:10px}
+.small{font-size:13px;color:#596579;line-height:1.5}
+</style>
+</head>
+<body>
+<header>
+<h1>📘 My AI Study</h1>
+<p>Learn smarter • Classes 1–12</p>
+</header>
+<main>
+<section class="card">
+<h2>🎓 Your Study Space</h2>
+<label for="class">Select class</label>
+<select id="class">
+<option>Class 1</option><option>Class 2</option>
+<option>Class 3</option><option>Class 4</option>
+<option>Class 5</option><option>Class 6</option>
+<option>Class 7</option><option>Class 8</option>
+<option>Class 9</option><option selected>Class 10</option>
+<option>Class 11</option><option>Class 12</option>
+</select>
+<label for="subject">Select subject</label>
+<select id="subject">
+<option>Maths</option><option>Science</option>
+<option>English</option><option>Hindi</option>
+<option>Social Science</option><option>Computer</option>
+</select>
+<label for="language">Answer language</label>
+<select id="language">
+<option>Hindi</option><option>English</option>
+</select>
+</section>
+
+<section class="card">
+<h2>💬 Ask a Question</h2>
+<label for="question">Type your question</label>
+<textarea id="question" rows="4"
+placeholder="Apna question yahan likho..."></textarea>
+<button id="ask">Show demo answer</button>
+<button id="voice" class="secondary">🎙️ Speak question</button>
+<p class="small">Voice input depends on your browser and language support.</p>
+<label for="photo">📷 Upload question photo</label>
+<input id="photo" type="file" accept="image/*">
+<img id="preview" hidden alt="Question preview">
+<div id="answer" aria-live="polite"></div>
+</section>
+
+<section class="card">
+<h2>📝 Sample MCQ Quiz</h2>
+<p id="quizQuestion">What is 2 + 2?</p>
+<div id="options"></div>
+<p id="quizResult" aria-live="polite"></p>
+<button class="secondary" id="next">Next question</button>
+</section>
+<p class="small">Demo version: real AI answers require a securely
+hosted AI backend. Do not enter passwords or private information.</p>
+</main>
+<script>
+const $=id=>document.getElementById(id);
+$("ask").onclick=()=>{
+ const q=$("question").value.trim();
+ if(!q){$("answer").textContent="Please type a question first.";return}
+ $("answer").textContent=
+ "Demo only — AI is not connected yet.\\n"+
+ "Class: "+$("class").value+"\\n"+
+ "Subject: "+$("subject").value+"\\n"+
+ "Question: "+q+"\\n\\n"+
+ "Connect a secure AI backend to get a real step-by-step solution.";
+};
+$("photo").onchange=e=>{
+ const f=e.target.files[0];
+ if(!f)return;
+ const img=$("preview");
+ img.src=URL.createObjectURL(f);
+ img.hidden=false;
+ $("answer").textContent=
+ "Photo selected. Real AI photo solving needs a secure AI backend.";
+};
+$("voice").onclick=()=>{
+ const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+ if(!SR){$("answer").textContent="Voice input is not supported here. Please type your question.";return}
+ const r=new SR();
+ r.lang=$("language").value==="Hindi"?"hi-IN":"en-US";
+ r.onresult=e=>$("question").value=e.results[0][0].transcript;
+ r.onerror=()=>{$("answer").textContent="Voice input failed. Please type your question."};
+ r.start();
+};
+const questions=[
+ {q:"What is 2 + 2?",o:["3","4","5"],a:1},
+ {q:"Which planet is known as the Red Planet?",o:["Mars","Earth","Venus"],a:0},
+ {q:"What is the chemical formula of water?",o:["CO2","O2","H2O"],a:2}
+];
+let qi=0;
+function renderQuiz(){
+ const q=questions[qi];
+ $("quizQuestion").textContent=q.q;
+ $("quizResult").textContent="";
+ $("options").innerHTML="";
+ q.o.forEach((v,i)=>{
+  const b=document.createElement("button");
+  b.className="secondary";b.textContent=v;
+  b.onclick=()=>{$("quizResult").textContent=
+   i===q.a?"Correct! 🎉":"Not quite. Try the next question.";
+  };
+  $("options").appendChild(b);
+ });
+}
+$("next").onclick=()=>{qi=(qi+1)%questions.length;renderQuiz()};
+renderQuiz();
+</script>
+</body>
+</html>
